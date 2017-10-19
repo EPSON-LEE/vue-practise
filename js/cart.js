@@ -4,7 +4,8 @@ var vm = new Vue({
   data:{
     productList: [],
     totalMoney: 0,
-    checkAllFlag:false
+    checkAllFlag:false,
+    delFlag: false
   },
   // 局部过滤器
   filters:{
@@ -34,6 +35,7 @@ var vm = new Vue({
           product.productQuantity--
         }
       }
+      this.calcTotalPrice();
     },
     selectedProduct: function(item) {
       if(typeof item.checked == 'undefined'){
@@ -44,20 +46,37 @@ var vm = new Vue({
       }else{
         item.checked = !item.checked
       }
+      this.calcTotalPrice();
     },
-    checkAll: function(){
-      this.checkAllFlag = !this.checkAllFlag
+    checkAll: function(flag){
+      this.checkAllFlag = flag
       var that = this
-      if(this.checkAllFlag){
-        this.productList.forEach(function(item){
-          if(typeof item.checked == 'undefined'){
-            // 全局设置
-            that.$set(item, 'checked', that.checkAllFlag)
-          }else{
-            item.checked = that.checkAllFlag
-          }
-        })
-      }
+      this.productList.forEach(function(item){
+        if(typeof item.checked == 'undefined'){
+          // 全局设置
+          that.$set(item, 'checked', that.checkAllFlag)
+        }else{
+          item.checked = that.checkAllFlag
+        }
+      })
+      this.calcTotalPrice();
+    },
+    calcTotalPrice: function(){
+      var that = this
+      this.totalMoney = 0
+      this.productList.forEach(function(item){
+        if(item.checked) {
+          that.totalMoney += item.productPrice * item.productQuantity
+        }
+        return that.totalMoney
+      })
+    },
+    delProduct: function(index){
+      this.productList.splice(this.pindex,1)
+      this.delFlag = false
+    },
+    cancelDelProduct: function(){
+      this.delFlag = false
     }
   }
 })
@@ -66,3 +85,13 @@ var vm = new Vue({
 Vue.filter("amount", function(value, type) {
   return "¥" + value.toFixed(2) + type
 })
+
+var a = {
+  test: 'test',
+  set: function(){
+    console.log(this)
+  },
+  get: () => {
+    console.log(this)
+  }
+}
